@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
-import {deleteContact} from "../../redux/contactSlice"
+import { useSelector } from 'react-redux';
+import { deleteContact } from "../../redux/contactSlice"
+import {getContact,getFilterWord} from "../../redux/selector"
 import { ListItem, Name, Number, DeleteButton } from './ContactsList.styled';
 
 const ContactItem = ({ contact}) => {
@@ -18,7 +20,23 @@ const ContactItem = ({ contact}) => {
     </ListItem>
   );
 };
-export const ContactsList = ({ visibleContacts }) => {
+export const ContactsList = () => {
+  	const contacts = useSelector(getContact);
+  const filterWord = useSelector(getFilterWord);
+  
+	const isVisibleContacts = () => {
+		if (filterWord) {
+			const normalizeFilter = filterWord.toLowerCase();
+
+			if (contacts.length !== 0) {
+				return contacts.filter(contact =>
+					contact.name.toLowerCase().includes(normalizeFilter)
+				);
+			}
+		}
+		return contacts;
+	};
+const visibleContacts = isVisibleContacts()
   return (
     <ul>
       
@@ -32,15 +50,6 @@ export const ContactsList = ({ visibleContacts }) => {
   );
 };
 
-ContactsList.propTypes = {
-  visibleContacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    }).isRequired
-  ).isRequired,
-};
 ContactItem.propTypes = {
   contact: PropTypes.shape({
     id: PropTypes.string,
